@@ -1,0 +1,48 @@
+version: '3'
+services:
+
+  db:
+    image: mysql:latest
+    container_name: attacker-db-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: tiger
+      MYSQL_DATABASE: myapp_db
+      MYSQL_USER: devuser
+      MYSQL_PASSWORD: devpass
+    volumes:
+      - ./vol-db:/var/lib/mysql/
+    networks:
+      - attacker-network
+
+  web:
+    build:    
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: attacker-web-php74
+    depends_on:
+      - db
+    volumes:
+      - ./vol-php:/var/www/html/
+    ports:
+      - 8000:80
+    networks:
+      - attacker-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: attacker-phpmyadmin
+    depends_on:
+      - db    
+    links: 
+      - db:db    
+    environment:      
+      MYSQL_ROOT_PASSWORD: tiger 
+    ports:
+      - 8001:80
+    networks:
+      - attacker-network
+
+networks:
+  attacker-network:
+     
+    

@@ -1,0 +1,48 @@
+version: '3'
+services:
+
+  db:
+    image: mysql:latest
+    container_name: app-db-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: tiger
+      MYSQL_DATABASE: myapp_db
+      MYSQL_USER: devuser
+      MYSQL_PASSWORD: devpass
+    volumes:
+      - ./vol-db:/var/lib/mysql/
+    networks:
+      - app-network
+
+  web:
+    build:    
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: app-web-php74
+    depends_on:
+      - db
+    volumes:
+      - ./vol-php:/var/www/html/
+    ports:
+      - 5000:80
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: app-phpmyadmin
+    depends_on:
+      - db    
+    links: 
+      - db:db    
+    environment:      
+      MYSQL_ROOT_PASSWORD: tiger 
+    ports:
+      - 5001:80
+    networks:
+      - app-network
+
+networks:
+  app-network:
+     
+    
